@@ -8,6 +8,7 @@ module.exports = {
         'jsdoc/require-jsdoc': 0,
         'prettier/prettier': 'off',
         '@typescript-eslint/no-unused-vars': 'off',
+        'no-case-declarations': 'off',
       },
     },
   ],

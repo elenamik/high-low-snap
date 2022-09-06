@@ -113,6 +113,29 @@ export const Home = () => {
     }
   };
 
+  const handleGuessClick = async (guess: 'HI' | 'LO') => {
+    try {
+      const response: Partial<{ success:boolean, randomNum: number }> | null | undefined = await window.ethereum.request({
+        method: 'wallet_invokeSnap',
+        params: [
+          defaultSnapOrigin,
+          {
+            method: 'guess',
+            params: {
+              guess,
+              inputNum: num
+            }
+          },
+        ],
+      });
+      console.log(response);
+      setNum(response?.randomNum)
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
   const handleGetNumberClick = async () => {
     try {
       const response: Partial<{ randomVal: number }> | null | undefined = await window.ethereum.request({
@@ -190,7 +213,25 @@ export const Home = () => {
           fullWidth={state.isFlask && state.isSnapInstalled}
         />
         <div>
-          {num && <div>{num}</div>}
+          {num && <div>
+            {num}
+            <Button
+              onClick={() => {
+              handleGuessClick('HI')}
+              }
+              disabled={!state.isSnapInstalled}
+            >
+              Guess HI
+            </Button>
+            <Button
+              onClick={() => {
+                handleGuessClick('LO')}
+              }
+              disabled={!state.isSnapInstalled}
+            >
+              Guess LO
+            </Button>
+          </div>}
         </div>
         <Notice>
           <p>

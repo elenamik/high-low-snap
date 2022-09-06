@@ -23,6 +23,18 @@ export const getMessage = (originString: string): string =>
 
 const CSRNG_URL = 'https://csrng.net/csrng/csrng.php?min=0&max=1000';
 
+const getRandomNum = async () => {
+  const csrngResponse = await fetch(CSRNG_URL, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  const data = await csrngResponse.json();
+  return data[0].random;
+};
+
 export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
@@ -42,19 +54,28 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         ],
       });
     case 'get_number':
-      // eslint-disable-next-line no-case-declarations
-      const csrngResponse = await fetch(CSRNG_URL, {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await csrngResponse.json();
+      const randomVal = await getRandomNum();
       return {
-        csrngResponse: 'hiii',
-        randomVal: data[0].random,
+        randomVal,
       };
+    case 'guess':
+      const { guess, inputNum } = request.params;
+      const randomNum = await getRandomNum();
+      let success = false;
+      if (
+        (guess === 'HI' && inputNum < randomNum) ||
+        (guess === 'LO' && inputNum > randomNum)
+      ) {
+        success = true;
+      }
+
+      return {
+        success,
+        guess,
+        inputNum,
+        randomNum,
+      };
+
     default:
       throw new Error('Method not found.');
   }
