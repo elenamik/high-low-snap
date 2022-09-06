@@ -93,12 +93,22 @@ const ErrorMessage = styled.div`
 export const Home = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
   const [num, setNum] = useState<number|undefined>();
-  const CSRNG_URL = 'https://csrng.net/csrng/csrng.php?min=1&max=1000';
+  const [scores, setScores] = useState({wins: 0, losses:0})
 
+  const getScores = async () =>{
+    const persistedData: {wins:number, losses: number} = await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: [
+        defaultSnapOrigin,
+        {
+          method: 'get_scores',
+        },
+      ],
+    }) as unknown as {wins:number, losses:number};
+    setScores(persistedData)
+  }
 
   const handleConnectClick = async () => {
-
-
     try {
       await connectSnap();
       const snapInstalled = await isSnapInstalled();
@@ -130,6 +140,7 @@ export const Home = () => {
       });
       console.log(response);
       setNum(response?.randomNum)
+      getScores()
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -213,6 +224,7 @@ export const Home = () => {
           fullWidth={state.isFlask && state.isSnapInstalled}
         />
         <div>
+          {JSON.stringify(scores)}
           {num && <div>
             {num}
             <Button

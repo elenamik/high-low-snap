@@ -35,10 +35,42 @@ const getRandomNum = async () => {
   return data[0].random;
 };
 
+type SnapState = {
+  wins: number;
+  losses: number;
+};
+
+/**
+ *
+ * @param newState
+ */
+async function saveState(newState: SnapState) {
+  await wallet.request({
+    method: 'snap_manageState',
+    params: ['update', { ...newState }],
+  });
+}
+
+/**
+ *
+ */
+async function getState(): Promise<SnapState> {
+  const state = await wallet.request({
+    method: 'snap_manageState',
+    params: ['get'],
+  });
+  if (state === null) {
+    return { wins: 0, losses: 0 };
+  }
+  return state;
+}
+
 export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
 }) => {
+  const state = await getState();
+
   switch (request.method) {
     case 'hello':
       return wallet.request({
@@ -58,22 +90,30 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       return {
         randomVal,
       };
+    case 'get_scores':
+      return { state };
     case 'guess':
       const { guess, inputNum } = request.params;
       const randomNum = await getRandomNum();
       let success = false;
+      let newState = state;
       if (
         (guess === 'HI' && inputNum < randomNum) ||
         (guess === 'LO' && inputNum > randomNum)
       ) {
         success = true;
+        newState = { ...state, wins: state.wins + 1 };
+      } else {
+        newState = { ...state, losses: state.losses + 1 };
       }
+      await saveState(newState);
 
       return {
         success,
         guess,
         inputNum,
         randomNum,
+        newState,
       };
 
     default:
