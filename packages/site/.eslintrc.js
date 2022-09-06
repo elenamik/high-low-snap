@@ -6,6 +6,8 @@ module.exports = {
       files: ['**/*.{ts,tsx}'],
       rules: {
         'jsdoc/require-jsdoc': 0,
+        'prettier/prettier': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
       },
     },
   ],
