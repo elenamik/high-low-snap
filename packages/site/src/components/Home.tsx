@@ -1,8 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import { connectSnap, isSnapInstalled, sendHello } from '../utils';
-import { ConnectButton, InstallFlaskButton, SendHelloButton } from './Buttons';
+import { defaultSnapOrigin } from '../config';
+import { Button, ConnectButton, InstallFlaskButton } from './Buttons';
 import { Card } from './Card';
 
 const Container = styled.div`
@@ -91,8 +92,13 @@ const ErrorMessage = styled.div`
 
 export const Home = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [num, setNum] = useState<number|undefined>();
+  const CSRNG_URL = 'https://csrng.net/csrng/csrng.php?min=1&max=1000';
+
 
   const handleConnectClick = async () => {
+
+
     try {
       await connectSnap();
       const snapInstalled = await isSnapInstalled();
@@ -107,9 +113,19 @@ export const Home = () => {
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const handleGetNumberClick = async () => {
     try {
-      await sendHello();
+      const response: Partial<{ randomVal: number }> | null | undefined = await window.ethereum.request({
+        method: 'wallet_invokeSnap',
+        params: [
+          defaultSnapOrigin,
+          {
+            method: 'get_number',
+          },
+        ],
+      });
+      console.log(response);
+      setNum(response?.randomVal)
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -159,19 +175,23 @@ export const Home = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            title: 'Get number to guess',
+            description: '',
             button: (
-              <SendHelloButton
-                onClick={handleSendHelloClick}
+              <Button
+                onClick={handleGetNumberClick}
                 disabled={!state.isSnapInstalled}
-              />
+              >
+                Get a number
+              </Button>
             ),
           }}
           disabled={!state.isSnapInstalled}
           fullWidth={state.isFlask && state.isSnapInstalled}
         />
+        <div>
+          {num && <div>{num}</div>}
+        </div>
         <Notice>
           <p>
             Please note that the <b>snap.manifest.json</b> and{' '}

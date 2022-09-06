@@ -20,7 +20,13 @@ export const getMessage = (originString: string): string =>
  * @throws If the request method is not valid for this snap.
  * @throws If the `snap_confirm` call failed.
  */
-export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
+
+const CSRNG_URL = 'https://csrng.net/csrng/csrng.php?min=0&max=1000';
+
+export const onRpcRequest: OnRpcRequestHandler = async ({
+  origin,
+  request,
+}) => {
   switch (request.method) {
     case 'hello':
       return wallet.request({
@@ -35,6 +41,20 @@ export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
           },
         ],
       });
+    case 'get_number':
+      // eslint-disable-next-line no-case-declarations
+      const csrngResponse = await fetch(CSRNG_URL, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await csrngResponse.json();
+      return {
+        csrngResponse: 'hiii',
+        randomVal: data[0].random,
+      };
     default:
       throw new Error('Method not found.');
   }
