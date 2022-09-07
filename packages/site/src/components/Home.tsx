@@ -92,6 +92,8 @@ const ErrorMessage = styled.div`
 
 export const Home = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [num, setNum] = useState<number|undefined>();
+
 
   const handleConnectClick = async () => {
     try {
@@ -110,7 +112,10 @@ export const Home = () => {
 
   const handleSendHelloClick = async () => {
     try {
-      await sendHello()
+      const response = await sendHello() as {randomVal: number}
+      console.log(response)
+      setNum(response.randomVal)
+
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -160,9 +165,8 @@ export const Home = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            title: 'Get random num',
+            description:'',
             button: (
               <Button
                 onClick={handleSendHelloClick}
@@ -176,6 +180,7 @@ export const Home = () => {
           fullWidth={state.isFlask && state.isSnapInstalled}
         />
         <div>
+          {num && <div>{num}</div>}
         </div>
         <Notice>
           <p>

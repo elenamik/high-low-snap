@@ -69,7 +69,7 @@ export const sendHello = async () => {
     params: [
       defaultSnapOrigin,
       {
-        method: 'hello',
+        method: 'get_number',
       },
     ],
   });
