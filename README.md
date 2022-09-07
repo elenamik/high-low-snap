@@ -1,6 +1,24 @@
-# @metamask/template-snap-monorepo
+# High Low Snap
 
-This repository demonstrates how to develop a snap with TypeScript. For detailed instructions, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
+This repository demonstrates how to develop a MetaMask Snap with TypeScript.
+
+The `main` branch is the starting point, without any of the logic.
+
+If you would like to see the full solution, checkout the `solutions` branch.
+
+## BEFORE YOU START:
+
+- Create a new chrome profile, install [MetaMask Flask](https://metamask.io/flask/), and sign into your wallet. Since you are working with experimental wallet features,
+I would recommend generating a new "dev" wallet altogether, with a completely different seed phrase.
+- If you start to encounter `failed to fetch` errors, it is because of a CORs issue.
+The workaround is to add this [chrome plugin](https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc?hl=en-US) to the same profile as MetaMask Flask to override CORs headers.
+This is a temporary solution until I can sort out the root cause of the CORs issue.
+
+
+
+
+
+For detailed Snaps documentation, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
 
 MetaMask Snaps is a system that allows anyone to safely expand the capabilities of MetaMask. A _snap_ is a program that we run in an isolated environment that can customize the wallet experience.
 
@@ -10,7 +28,7 @@ To interact with (your) Snaps, you will need to install [MetaMask Flask](https:/
 
 ## Getting Started
 
-Clone the template-snap repository [using this template](https://github.com/MetaMask/template-snap-monorepo/generate) and setup the development environment: 
+Clone the template-snap repository [using this template](https://github.com/MetaMask/template-snap-monorepo/generate) and setup the development environment:
 ```shell
 yarn install && yarn start
 ```
