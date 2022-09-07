@@ -122,6 +122,24 @@ export const Home = () => {
     }
   };
 
+  const handleGuessClick = async (guess: 'HI' | 'LO') => {
+    const response = await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: [
+        defaultSnapOrigin,
+        {
+          method: 'guess',
+          params: {
+            guess,
+            inputNum: num
+          }
+        },
+      ],
+    }) as {randomNum: number}
+    console.log(response);
+    setNum(response?.randomNum)
+  }
+
   return (
     <Container>
       <Heading>
@@ -180,7 +198,24 @@ export const Home = () => {
           fullWidth={state.isFlask && state.isSnapInstalled}
         />
         <div>
-          {num && <div>{num}</div>}
+          {num && <div>{num}
+            <Button
+              onClick={() => {
+                handleGuessClick('HI')}
+              }
+              disabled={!state.isSnapInstalled}
+            >
+              Guess HI
+            </Button>
+            <Button
+              onClick={() => {
+                handleGuessClick('LO')}
+              }
+              disabled={!state.isSnapInstalled}
+            >
+              Guess LO
+            </Button>
+          </div>}
         </div>
         <Notice>
           <p>

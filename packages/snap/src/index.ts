@@ -56,6 +56,27 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case 'get_number':
       const randomVal = await getRandomNum();
       return { randomVal };
+    case 'guess':
+      const { inputNum, guess } = request.params as {
+        inputNum: number;
+        guess: 'HI' | 'LO';
+      };
+      const randomNum = await getRandomNum();
+      let success = false;
+
+      if (
+        (guess === 'HI' && inputNum < randomNum) ||
+        (guess === 'LO' && inputNum > randomNum)
+      ) {
+        success = true;
+      }
+      return {
+        success,
+        inputNum,
+        guess,
+        randomNum,
+      };
+
     default:
       throw new Error('Method not found.');
   }
