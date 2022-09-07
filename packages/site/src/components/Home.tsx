@@ -92,7 +92,39 @@ const ErrorMessage = styled.div`
 
 export const Home = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [num, setNum] = useState<number|undefined>();
+  const [scores, setScores] = useState({wins: 0, losses:0})
+  const getScores = async () => {
+    const persistedData: {wins:number, losses: number} = await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: [
+        defaultSnapOrigin,
+        {
+          method: 'get_scores',
+        },
+      ],
+    }) as unknown as {wins:number, losses:number};
+    setScores(persistedData)
+  }
 
+  const handleGuessClick = async (guess: 'HI' | 'LO') => {
+    const result =  await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: [
+        defaultSnapOrigin,
+        {
+          method: 'guess',
+          params: {
+            inputNum: num,
+            guess
+          }
+        },
+      ],
+    }) as {randomNum: number}
+    console.log(result)
+    setNum(result.randomNum)
+    getScores()
+  }
 
 
   const handleConnectClick = async () => {
@@ -110,9 +142,13 @@ export const Home = () => {
     }
   };
 
+
+
   const handleSendHelloClick = async () => {
     try {
-      await await sendHello();
+      const result = await sendHello() as {randomVal: number};
+      console.log(result)
+      setNum(result.randomVal)
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -162,7 +198,7 @@ export const Home = () => {
         )}
         <Card
           content={{
-            title: 'Send hello message',
+            title: 'Get random number',
             description: '',
             button: (
               <Button
@@ -177,6 +213,28 @@ export const Home = () => {
           fullWidth={state.isFlask && state.isSnapInstalled}
         />
         <div>
+          <div>
+            {num && <div>
+              {JSON.stringify(scores)}
+              {num}
+              <Button
+                onClick={() => {
+                  handleGuessClick('HI')}
+                }
+                disabled={!state.isSnapInstalled}
+              >
+                Guess HI
+              </Button>
+              <Button
+                onClick={() => {
+                  handleGuessClick('LO')}
+                }
+                disabled={!state.isSnapInstalled}
+              >
+                Guess LO
+              </Button>
+            </div>}
+          </div>
         </div>
         <Notice>
           <p>
