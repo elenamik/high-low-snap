@@ -93,6 +93,8 @@ const ErrorMessage = styled.div`
 export const Home = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
   const [num, setNum] = useState<number|undefined>();
+  const [scores, setScores] = useState({wins: 0, losses:0})
+
 
 
   const handleConnectClick = async () => {
@@ -122,6 +124,19 @@ export const Home = () => {
     }
   };
 
+  const getScores = async () => {
+    const result = await window.ethereum.request({
+      method: 'wallet_invokeSnap',
+      params: [
+        defaultSnapOrigin,
+        {
+          method: 'get_scores',
+        },
+      ],
+    }) as unknown as {wins:number, losses:number};
+    setScores(result)
+  }
+
   const handleGuessClick = async (guess: 'HI' | 'LO') => {
     const response = await window.ethereum.request({
       method: 'wallet_invokeSnap',
@@ -138,6 +153,7 @@ export const Home = () => {
     }) as {randomNum: number}
     console.log(response);
     setNum(response?.randomNum)
+    getScores()
   }
 
   return (
@@ -199,6 +215,7 @@ export const Home = () => {
         />
         <div>
           {num && <div>{num}
+            {JSON.stringify(scores)}
             <Button
               onClick={() => {
                 handleGuessClick('HI')}

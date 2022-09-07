@@ -20,6 +20,44 @@ export const getMessage = (originString: string): string =>
  * @throws If the request method is not valid for this snap.
  * @throws If the `snap_confirm` call failed.
  */
+
+/**
+ *
+ */
+
+type SnapState = {
+  wins: number;
+  losses: number;
+};
+
+/**
+ *
+ */
+async function getState(): Promise<SnapState> {
+  const state =
+    ((await wallet.request({
+      method: 'snap_manageState',
+      params: ['get'],
+    })) as SnapState) || undefined;
+
+  if (!state) {
+    return { wins: 0, losses: 0 };
+  }
+
+  return state;
+}
+
+/**
+ *
+ * @param newState
+ */
+async function saveState(newState: SnapState) {
+  await wallet.request({
+    method: 'snap_manageState',
+    params: ['update', { ...newState }],
+  });
+}
+
 const CSRNG_URL = 'https://csrng.net/csrng/csrng.php?min=0&max=1000';
 
 const getRandomNum = async () => {
@@ -38,6 +76,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
 }) => {
+  const state = await getState();
+
   switch (request.method) {
     case 'hello':
       return wallet.request({
@@ -56,6 +96,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     case 'get_number':
       const randomVal = await getRandomNum();
       return { randomVal };
+    case 'get_scores':
+      return { state };
     case 'guess':
       const { inputNum, guess } = request.params as {
         inputNum: number;
@@ -63,18 +105,25 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       };
       const randomNum = await getRandomNum();
       let success = false;
+      let newState = state;
 
       if (
         (guess === 'HI' && inputNum < randomNum) ||
         (guess === 'LO' && inputNum > randomNum)
       ) {
         success = true;
+        newState = { ...state, wins: state.wins + 1 };
+      } else {
+        newState = { ...state, losses: state.losses + 1 };
       }
+      await saveState(newState);
+
       return {
         success,
         inputNum,
         guess,
         randomNum,
+        newState,
       };
 
     default:
