@@ -198,14 +198,14 @@ export const Home = () => {
         )}
         <Card
           content={{
-            title: 'Get random number',
+            title: '',
             description: '',
             button: (
               <Button
                 onClick={handleSendHelloClick}
                 disabled={!state.isSnapInstalled}
               >
-                Send hello
+                Get Random Number
               </Button>
             ),
           }}
