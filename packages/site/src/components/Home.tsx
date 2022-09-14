@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import {useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import { connectSnap, isSnapInstalled, sendHello } from '../utils';
@@ -106,6 +106,10 @@ export const Home = () => {
     }) as unknown as {wins:number, losses:number};
     setScores(persistedData)
   }
+
+  useEffect(()=>{
+    getScores()
+  },[])
 
   const handleGuessClick = async (guess: 'HI' | 'LO') => {
     const result =  await window.ethereum.request({
