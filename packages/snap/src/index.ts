@@ -12,6 +12,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
     case 'guess':
       return {};
+
     case 'get_scores':
       return {};
 

@@ -144,9 +144,17 @@ export const Home = () => {
 
 
 
-  const handleSendHelloClick = async () => {
+  const handleGetNumberClick = async () => {
     try {
-      const result = await sendHello() as {randomVal: number};
+      const result = await window.ethereum.request({
+        method: 'wallet_invokeSnap',
+        params: [
+          defaultSnapOrigin,
+          {
+            method: 'get_number',
+          },
+        ],
+      }) as {randomVal: number};
       console.log(result)
       setNum(result.randomVal)
     } catch (e) {
@@ -202,7 +210,7 @@ export const Home = () => {
             description: '',
             button: (
               <Button
-                onClick={handleSendHelloClick}
+                onClick={handleGetNumberClick}
                 disabled={!state.isSnapInstalled}
               >
                 Get Random Number
